@@ -1,0 +1,13 @@
+rdacb.kfold.crossval.reg <- function(df, nfolds) {
+		fold <- sample(1:nfolds, nrow(df), replace = TRUE)
+		mean.sqr.errs <- sapply(1:nfolds, rdacb.kfold.cval.reg.iter, df, fold)
+		list("mean_sqr_errs"= mean.sqr.errs, "overall_mean_sqr_err" = mean(mean.sqr.errs), 	"std_dev_mean_sqr_err" = sd(mean.sqr.errs))
+	}
+rdacb.kfold.cval.reg.iter <- function(k, df, fold) {
+		trg.idx <- !fold %in% c(k)
+		test.idx <- fold %in% c(k)
+		mod <- lm(MEDV ~ ., data = df[trg.idx, ] )
+		pred <- predict(mod, df[test.idx,])
+		sqr.errs <- (pred - df[test.idx, "MEDV"])^2
+		mean(sqr.errs)
+	}
